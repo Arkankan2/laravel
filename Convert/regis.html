@@ -1,0 +1,82 @@
+<!-- register.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Sistem Pelaporan</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LEFT -->
+  <div class="left"></div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <img class="logo" src="Image Login/logo.png" alt="logo">
+
+    <div class="login-box">
+
+      <div class="title">
+        <h1>Buat Akun<br>Baru</h1>
+      </div>
+
+      <form action="regis.php" method="POST">
+
+        <div class="input-group">
+          <input type="text" 
+                 name="nama_admin"
+                 placeholder="Nama Mahasiswa"
+                 required>
+        </div>
+
+        <div class="input-group">
+          <input type="text" 
+                 name="nip"
+                 placeholder="NIP"
+                 required>
+        </div>
+
+        <div class="input-group">
+          <input type="text" 
+                 name="kontak"
+                 placeholder="Nomor Kontak"
+                 required>
+        </div>
+
+        <div class="input-group">
+          <input type="password" 
+                 name="sandi"
+                 placeholder="Password"
+                 required>
+        </div>
+
+        <button type="submit" class="btn">
+          REGISTER
+        </button>
+
+      </form>
+
+      <div class="forgot">
+        <a href="index.html">
+          Sudah punya akun? Login
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

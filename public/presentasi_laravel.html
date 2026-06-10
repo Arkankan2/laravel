@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistem Informasi Fasilitas Kampus — Laravel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0b0e1a;
+      --surface:  #111827;
+      --card:     #1a2235;
+      --border:   #1e2d45;
+      --accent1:  #6366f1;
+      --accent2:  #22d3ee;
+      --accent3:  #f472b6;
+      --accent4:  #34d399;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --white:    #ffffff;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── DECK WRAPPER ── */
+    #deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* ── SLIDE BASE ── */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .5s ease, transform .5s ease;
+      transform: translateX(60px);
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ── GLOBAL NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── GRID DECORATION ── */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    /* ── GLOW BLOBS ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: rgba(99,102,241,.15); top: -150px; left: -150px; }
+    .blob-2 { width: 400px; height: 400px; background: rgba(34,211,238,.12); bottom: -100px; right: -100px; }
+    .blob-3 { width: 300px; height: 300px; background: rgba(244,114,182,.10); top: 40%; left: 40%; }
+
+    /* ── CONTENT Z ── */
+    .slide > * { position: relative; z-index: 1; }
+
+    /* ── SLIDE 1 — COVER ── */
+    #s1 { text-align: center; }
+    #s1 .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(99,102,241,.15);
+      border: 1px solid rgba(99,102,241,.4);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 13px; font-weight: 600; color: var(--accent1);
+      letter-spacing: .5px;
+      margin-bottom: 28px;
+      animation: fadeDown .6s .2s both;
+    }
+    #s1 h1 {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      background: linear-gradient(135deg, var(--white) 30%, var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: fadeDown .6s .3s both;
+    }
+    #s1 .subtitle {
+      margin-top: 16px;
+      font-size: 1.15rem; color: var(--muted); font-weight: 400;
+      animation: fadeDown .6s .4s both;
+    }
+    #s1 .tags {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      margin-top: 36px;
+      animation: fadeDown .6s .5s both;
+    }
+    .tag {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      border: 1px solid;
+    }
+    .tag-purple { background: rgba(99,102,241,.1); border-color: rgba(99,102,241,.4); color: #a5b4fc; }
+    .tag-cyan   { background: rgba(34,211,238,.1); border-color: rgba(34,211,238,.4); color: var(--accent2); }
+    .tag-pink   { background: rgba(244,114,182,.1); border-color: rgba(244,114,182,.4); color: var(--accent3); }
+    .tag-green  { background: rgba(52,211,153,.1); border-color: rgba(52,211,153,.4); color: var(--accent4); }
+    #s1 .line {
+      width: 80px; height: 3px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      border-radius: 2px;
+      margin: 32px auto 0;
+      animation: fadeDown .6s .6s both;
+    }
+
+    /* ── SLIDE 2 — APA ITU LARAVEL ── */
+    .slide-title {
+      font-size: 2.2rem; font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--white), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .slide-sub {
+      color: var(--muted); font-size: .95rem; margin-bottom: 40px;
+    }
+    .mvc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .mvc-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 22px;
+      text-align: center;
+      transition: transform .25s, border-color .25s;
+    }
+    .mvc-card:hover { transform: translateY(-4px); border-color: var(--accent1); }
+    .mvc-icon { font-size: 2.4rem; margin-bottom: 12px; }
+    .mvc-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--white); }
+    .mvc-desc { font-size: .83rem; color: var(--muted); line-height: 1.5; }
+    .mvc-badge {
+      display: inline-block; margin-top: 10px;
+      font-size: .72rem; font-weight: 700; padding: 3px 10px;
+      border-radius: 999px; letter-spacing: .5px;
+    }
+    .b-purple { background: rgba(99,102,241,.2); color: #a5b4fc; }
+    .b-cyan   { background: rgba(34,211,238,.2); color: var(--accent2); }
+    .b-pink   { background: rgba(244,114,182,.2); color: var(--accent3); }
+    .b-green  { background: rgba(52,211,153,.2); color: var(--accent4); }
+    .b-orange { background: rgba(251,146,60,.2); color: #fb923c; }
+    .b-yellow { background: rgba(250,204,21,.2); color: #facc15; }
+
+    /* ── SLIDE 3 — DATABASE ── */
+    .db-wrap {
+      display: flex; gap: 40px; align-items: flex-start;
+      width: 100%; max-width: 950px;
+    }
+    .db-left { flex: 1; }
+    .db-right { flex: 1; }
+    .db-table {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .db-header {
+      padding: 10px 16px;
+      font-size: .82rem; font-weight: 700; letter-spacing: .5px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .db-header.purple { background: rgba(99,102,241,.15); color: #a5b4fc; }
+    .db-header.cyan   { background: rgba(34,211,238,.15); color: var(--accent2); }
+    .db-header.green  { background: rgba(52,211,153,.15); color: var(--accent4); }
+    .db-header.pink   { background: rgba(244,114,182,.15); color: var(--accent3); }
+    .db-header.orange { background: rgba(251,146,60,.15); color: #fb923c; }
+    .db-fields {
+      padding: 10px 16px;
+      font-family: 'Fira Code', monospace;
+      font-size: .76rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    .db-fields .key { color: #a5b4fc; }
+    .db-fields .type { color: var(--accent4); }
+    .db-arrow {
+      color: var(--muted); font-size: .8rem; text-align: center;
+      margin: 4px 0; letter-spacing: 1px;
+    }
+
+    /* ── SLIDE 4 — ROLES ── */
+    .roles-wrap {
+      display: flex; gap: 24px; width: 100%; max-width: 900px;
+    }
+    .role-card {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      transition: transform .25s, border-color .25s;
+    }
+    .role-card:hover { transform: translateY(-5px); }
+    .role-card.admin-card { border-color: rgba(99,102,241,.4); }
+    .role-card.mhs-card   { border-color: rgba(34,211,238,.4); }
+    .role-icon { font-size: 3rem; margin-bottom: 16px; }
+    .role-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
+    .role-sub  { font-size: .82rem; color: var(--muted); margin-bottom: 20px; }
+    .role-list { list-style: none; }
+    .role-list li {
+      font-size: .85rem; color: var(--muted);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .role-list li:last-child { border-bottom: none; }
+    .role-list .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot-purple { background: var(--accent1); }
+    .dot-cyan   { background: var(--accent2); }
+
+    /* ── SLIDE 5 — ROUTES ── */
+    .routes-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      width: 100%; max-width: 950px;
+    }
+    .route-group {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .route-group-header {
+      padding: 10px 16px;
+      font-size: .78rem; font-weight: 700; letter-spacing: .5px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .rg-auth    { background: rgba(99,102,241,.12); color: #a5b4fc; }
+    .rg-admin   { background: rgba(244,114,182,.12); color: var(--accent3); }
+    .rg-mhs     { background: rgba(34,211,238,.12); color: var(--accent2); }
+    .rg-reg     { background: rgba(52,211,153,.12); color: var(--accent4); }
+    .route-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: .78rem;
+    }
+    .route-item:last-child { border-bottom: none; }
+    .method {
+      font-family: 'Fira Code', monospace;
+      font-weight: 700; font-size: .7rem;
+      padding: 2px 7px; border-radius: 4px;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .m-get    { background: rgba(52,211,153,.15); color: var(--accent4); }
+    .m-post   { background: rgba(99,102,241,.15); color: #a5b4fc; }
+    .m-delete { background: rgba(244,114,182,.15); color: var(--accent3); }
+    .route-path {
+      font-family: 'Fira Code', monospace;
+      color: var(--text); font-size: .75rem; line-height: 1.4;
+    }
+    .route-desc { color: var(--muted); font-size: .72rem; margin-top: 2px; }
+
+    /* ── SLIDE 6 — ALUR LOGIN ── */
+    .flow-wrap {
+      display: flex; flex-direction: column; gap: 0;
+      width: 100%; max-width: 820px;
+    }
+    .flow-row {
+      display: flex; align-items: center; gap: 0;
+    }
+    .flow-step {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      text-align: center;
+      transition: border-color .25s;
+    }
+    .flow-step:hover { border-color: var(--accent1); }
+    .flow-step .step-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(99,102,241,.2);
+      color: #a5b4fc; font-size: .72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px;
+    }
+    .flow-step .step-label { font-size: .82rem; font-weight: 600; color: var(--white); }
+    .flow-step .step-desc  { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+    .flow-arrow {
+      color: var(--accent1); font-size: 1.4rem; padding: 0 6px; flex-shrink: 0;
+    }
+    .flow-connector {
+      width: 2px; background: var(--border); height: 16px;
+      margin: 0 auto;
+    }
+    .flow-split {
+      display: flex; gap: 16px; width: 100%; margin-top: 0;
+    }
+    .flow-outcome {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: center;
+    }
+    .outcome-success { border-color: rgba(52,211,153,.4); }
+    .outcome-fail    { border-color: rgba(244,114,182,.4); }
+    .outcome-label { font-size: .78rem; font-weight: 600; }
+    .oc-green { color: var(--accent4); }
+    .oc-pink  { color: var(--accent3); }
+    .outcome-desc { font-size: .7rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── SLIDE 7 — MIDDLEWARE ── */
+    .mw-wrap {
+      display: flex; flex-direction: column; gap: 14px;
+      width: 100%; max-width: 800px;
+    }
+    .mw-step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 24px;
+      display: flex; align-items: center; gap: 18px;
+    }
+    .mw-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .mw-content { flex: 1; }
+    .mw-title { font-size: .95rem; font-weight: 700; color: var(--white); }
+    .mw-desc  { font-size: .82rem; color: var(--muted); margin-top: 4px; }
+    .mw-badge-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .mw-code {
+      font-family: 'Fira Code', monospace;
+      font-size: .78rem;
+      background: rgba(99,102,241,.1);
+      border: 1px solid rgba(99,102,241,.3);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: #a5b4fc; width: 100%;
+      margin-top: 8px;
+    }
+
+    /* ── SLIDE 8 — STATUS FITUR ── */
+    .status-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      width: 100%; max-width: 900px;
+    }
+    .status-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .status-card h4 {
+      font-size: .88rem; font-weight: 700;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .status-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .8rem;
+    }
+    .status-item:last-child { border-bottom: none; }
+    .check { flex-shrink: 0; margin-top: 1px; }
+    .s-done    { color: var(--accent4); }
+    .s-todo    { color: var(--accent3); }
+    .s-warn    { color: #fb923c; }
+    .item-label { color: var(--text); }
+    .item-note  { color: var(--muted); font-size: .72rem; }
+
+    /* ── SLIDE 9 — KODE KUNCI ── */
+    .code-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      width: 100%; max-width: 950px;
+    }
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .code-header {
+      padding: 10px 16px;
+      background: var(--card);
+      font-size: .75rem; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cd-red    { background: #ff5f57; }
+    .cd-yellow { background: #febc2e; }
+    .cd-green  { background: #28c840; }
+    pre {
+      padding: 14px 16px;
+      font-family: 'Fira Code', monospace;
+      font-size: .74rem;
+      line-height: 1.7;
+      color: #e2e8f0;
+      overflow: auto;
+    }
+    .kw  { color: #c792ea; }   /* keyword */
+    .fn  { color: #82aaff; }   /* function */
+    .str { color: #c3e88d; }   /* string */
+    .cm  { color: #546e7a; }   /* comment */
+    .cl  { color: #ffcb6b; }   /* class */
+
+    /* ── SLIDE 10 — PENUTUP ── */
+    #s10 { text-align: center; }
+    #s10 h2 {
+      font-size: 2.8rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--white), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .closing-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+      width: 100%; max-width: 800px; margin-top: 36px;
+    }
+    .closing-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px; text-align: center;
+      transition: transform .25s, border-color .25s;
+    }
+    .closing-card:hover { transform: translateY(-4px); border-color: var(--accent1); }
+    .cc-icon { font-size: 2rem; margin-bottom: 10px; }
+    .cc-title { font-size: .88rem; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .cc-desc  { font-size: .76rem; color: var(--muted); }
+
+    /* ── NAVIGATION ── */
+    #nav {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 16px;
+      background: rgba(17,24,39,.8);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 20px;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .nav-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, border-color .2s, transform .15s;
+    }
+    .nav-btn:hover { background: var(--accent1); border-color: var(--accent1); color: #fff; transform: scale(1.1); }
+    #slide-counter {
+      font-size: .82rem; color: var(--muted); min-width: 60px; text-align: center;
+      font-weight: 500;
+    }
+    .dots { display: flex; gap: 6px; }
+    .dot-nav {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border); transition: background .3s, transform .3s; cursor: pointer;
+    }
+    .dot-nav.active { background: var(--accent1); transform: scale(1.4); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── PROGRESS BAR ── */
+    #progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent1), var(--accent2));
+      transition: width .4s ease;
+      z-index: 200;
+    }
+
+    /* ── SLIDE NUMBER ── */
+    #slide-num-badge {
+      position: fixed; top: 24px; right: 32px;
+      font-size: .78rem; color: var(--muted);
+      z-index: 100;
+    }
+
+    /* scrollable in slides */
+    .slide-scroll { overflow-y: auto; max-height: calc(100vh - 140px); width: 100%; }
+    .slide-scroll::-webkit-scrollbar { width: 4px; }
+    .slide-scroll::-webkit-scrollbar-track { background: transparent; }
+    .slide-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<div id="progress"></div>
+<div id="slide-num-badge">Slide <span id="cur">1</span> / <span id="tot">10</span></div>
+
+<div id="deck">
+
+  <!-- ═══ SLIDE 1 — COVER ═══ -->
+  <div class="slide active" id="s1">
+    <div class="badge">🎓 Tugas Akhir / Proyek Kuliah</div>
+    <h1>Sistem Informasi<br>Fasilitas Kampus</h1>
+    <p class="subtitle">Dibangun menggunakan Laravel 11 · PHP · MySQL · Blade Template</p>
+    <div class="tags">
+      <span class="tag tag-purple">🏗️ MVC Architecture</span>
+      <span class="tag tag-cyan">🔐 Multi-Role Auth</span>
+      <span class="tag tag-pink">📋 Laporan Kerusakan</span>
+      <span class="tag tag-green">⚡ Laravel 11</span>
+    </div>
+    <div class="line"></div>
+  </div>
+
+  <!-- ═══ SLIDE 2 — APA ITU LARAVEL ═══ -->
+  <div class="slide" id="s2">
+    <h2 class="slide-title">Apa itu Laravel?</h2>
+    <p class="slide-sub">Framework PHP dengan pola arsitektur MVC — terstruktur, elegan, dan produktif</p>
+    <div class="mvc-grid">
+      <div class="mvc-card">
+        <div class="mvc-icon">🗄️</div>
+        <div class="mvc-title">Model</div>
+        <div class="mvc-desc">Berkomunikasi langsung dengan database. Mengambil, menyimpan, dan mengubah data.</div>
+        <span class="mvc-badge b-purple">Eloquent ORM</span>
+      </div>
+      <div class="mvc-card">
+        <div class="mvc-icon">🖥️</div>
+        <div class="mvc-title">View</div>
+        <div class="mvc-desc">Tampilan yang dilihat pengguna di browser. Menggunakan template Blade.</div>
+        <span class="mvc-badge b-cyan">.blade.php</span>
+      </div>
+      <div class="mvc-card">
+        <div class="mvc-icon">⚙️</div>
+        <div class="mvc-title">Controller</div>
+        <div class="mvc-desc">Manajer/jembatan. Menerima request, proses logika, kirim data ke View.</div>
+        <span class="mvc-badge b-pink">Business Logic</span>
+      </div>
+      <div class="mvc-card">
+        <div class="mvc-icon">🗺️</div>
+        <div class="mvc-title">Routes</div>
+        <div class="mvc-desc">Resepsionis. Menentukan Controller mana yang dipanggil saat URL diakses.</div>
+        <span class="mvc-badge b-green">web.php</span>
+      </div>
+      <div class="mvc-card">
+        <div class="mvc-icon">🛡️</div>
+        <div class="mvc-title">Middleware</div>
+        <div class="mvc-desc">Satpam. Mengecek izin dan autentikasi sebelum masuk ke halaman.</div>
+        <span class="mvc-badge b-orange">Auth & Role</span>
+      </div>
+      <div class="mvc-card">
+        <div class="mvc-icon">📐</div>
+        <div class="mvc-title">Migration</div>
+        <div class="mvc-desc">Blueprint database. Mendefinisikan struktur tabel via kode PHP.</div>
+        <span class="mvc-badge b-yellow">Schema Builder</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 3 — DATABASE ═══ -->
+  <div class="slide" id="s3">
+    <h2 class="slide-title">Struktur Database</h2>
+    <p class="slide-sub">8 tabel yang saling berkaitan untuk mengelola seluruh data aplikasi</p>
+    <div class="db-wrap">
+      <div class="db-left">
+        <div class="db-table">
+          <div class="db-header purple">🔑 user — Tabel Login Utama</div>
+          <div class="db-fields">
+            <span class="key">id_user</span> · <span class="type">INT PK</span><br>
+            username · <span class="type">VARCHAR UNIQUE</span><br>
+            password · <span class="type">VARCHAR (hashed)</span><br>
+            role · <span class="type">ENUM</span> (super_admin | admin | teknisi | dosen | mahasiswa)
+          </div>
+        </div>
+        <div class="db-arrow">↓ profil detail</div>
+        <div class="db-table">
+          <div class="db-header cyan">👨‍🎓 mahasiswa</div>
+          <div class="db-fields">
+            id_mahasiswa · Nim · Nama_mahasiswa<br>
+            prodi · agama · jenis_kelamin<br>
+            tanggal_lahir · ukm · foto_profil
+          </div>
+        </div>
+        <div class="db-table" style="margin-top:10px">
+          <div class="db-header green">👩‍💼 admin</div>
+          <div class="db-fields">
+            id_admin · nip · nama_admin · kontak
+          </div>
+        </div>
+      </div>
+      <div class="db-right">
+        <div class="db-table">
+          <div class="db-header orange">🔧 teknisi</div>
+          <div class="db-fields">
+            id_teknisi · nama_teknisi · bidang_keahlian · kontak
+          </div>
+        </div>
+        <div class="db-table" style="margin-top:10px">
+          <div class="db-header pink">📦 kategori_fasilitas</div>
+          <div class="db-fields">
+            id_kategori · nama_kategori<br>
+            <span class="type">(meja|kursi|ac|tv|dinding|lantai...)</span>
+          </div>
+        </div>
+        <div class="db-table" style="margin-top:10px">
+          <div class="db-header purple">📍 lokasi_fasilitas</div>
+          <div class="db-fields">
+            id_lokasi · nama_ruangan · nama_gedung · Ruangan
+          </div>
+        </div>
+        <div class="db-table" style="margin-top:10px">
+          <div class="db-header cyan">📋 laporan + riwayat_status</div>
+          <div class="db-fields">
+            Tingkat_Kerusakan: Rendah|Sedang|Parah<br>
+            Status_terkini: Sedang Diperbaiki|Selesai
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 4 — ROLES ═══ -->
+  <div class="slide" id="s4">
+    <h2 class="slide-title">Sistem Multi-Role</h2>
+    <p class="slide-sub">5 jenis pengguna dengan hak akses berbeda — dikelola melalui satu tabel login</p>
+    <div class="roles-wrap">
+      <div class="role-card admin-card">
+        <div class="role-icon">👩‍💼</div>
+        <div class="role-name" style="color:#a5b4fc">Admin Panel</div>
+        <div class="role-sub">Akses ke <code style="color:#a5b4fc">/admin/*</code></div>
+        <ul class="role-list">
+          <li><span class="dot dot-purple"></span><strong style="color:#e2e8f0">super_admin</strong> — akses penuh</li>
+          <li><span class="dot dot-purple"></span><strong style="color:#e2e8f0">admin</strong> — kelola data mahasiswa</li>
+          <li><span class="dot dot-purple"></span><strong style="color:#e2e8f0">teknisi</strong> — lihat & update laporan</li>
+          <li><span class="dot dot-purple"></span>Lihat daftar semua mahasiswa</li>
+          <li><span class="dot dot-purple"></span>Hapus data mahasiswa & akun</li>
+          <li><span class="dot dot-purple"></span>Dashboard statistik admin</li>
+        </ul>
+      </div>
+      <div class="role-card mhs-card">
+        <div class="role-icon">👨‍🎓</div>
+        <div class="role-name" style="color:var(--accent2)">Mahasiswa / Dosen</div>
+        <div class="role-sub">Akses ke <code style="color:var(--accent2)">/mahasiswa/*</code></div>
+        <ul class="role-list">
+          <li><span class="dot dot-cyan"></span><strong style="color:#e2e8f0">mahasiswa</strong> — pengguna umum</li>
+          <li><span class="dot dot-cyan"></span><strong style="color:#e2e8f0">dosen</strong> — hak sama dengan mahasiswa</li>
+          <li><span class="dot dot-cyan"></span>Lihat & edit biodata profil</li>
+          <li><span class="dot dot-cyan"></span>Upload foto profil</li>
+          <li><span class="dot dot-cyan"></span>Ganti password akun</li>
+          <li><span class="dot dot-cyan"></span>Pantau status laporan kerusakan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 5 — ROUTES ═══ -->
+  <div class="slide" id="s5">
+    <h2 class="slide-title">Peta Routes Aplikasi</h2>
+    <p class="slide-sub">Semua URL yang tersedia beserta method HTTP dan fungsinya</p>
+    <div class="routes-grid">
+      <div class="route-group">
+        <div class="route-group-header rg-auth">🔐 Autentikasi</div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/</div><div class="route-desc">Halaman login</div></div></div>
+        <div class="route-item"><span class="method m-post">POST</span><div><div class="route-path">/login</div><div class="route-desc">Proses login</div></div></div>
+        <div class="route-item"><span class="method m-post">POST</span><div><div class="route-path">/logout</div><div class="route-desc">Keluar dari sistem</div></div></div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/reset-password</div><div class="route-desc">Form reset sandi</div></div></div>
+        <div class="route-item"><span class="method m-post">POST</span><div><div class="route-path">/reset-password</div><div class="route-desc">Proses reset sandi</div></div></div>
+      </div>
+      <div class="route-group">
+        <div class="route-group-header rg-reg">📝 Registrasi</div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/register</div><div class="route-desc">Form daftar admin</div></div></div>
+        <div class="route-item"><span class="method m-post">POST</span><div><div class="route-path">/register</div><div class="route-desc">Proses daftar admin</div></div></div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/register/mahasiswa</div><div class="route-desc">Form daftar mahasiswa</div></div></div>
+        <div class="route-item"><span class="method m-post">POST</span><div><div class="route-path">/register/mahasiswa</div><div class="route-desc">Proses daftar mahasiswa</div></div></div>
+      </div>
+      <div class="route-group">
+        <div class="route-group-header rg-admin">👩‍💼 Admin Panel <small style="opacity:.6">[auth + role]</small></div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/admin/dashboard</div><div class="route-desc">Dashboard admin</div></div></div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/admin/mahasiswa</div><div class="route-desc">Daftar semua mahasiswa</div></div></div>
+        <div class="route-item"><span class="method m-delete">DEL</span><div><div class="route-path">/admin/mahasiswa/{id}</div><div class="route-desc">Hapus mahasiswa + akun</div></div></div>
+      </div>
+      <div class="route-group">
+        <div class="route-group-header rg-mhs">👨‍🎓 Mahasiswa <small style="opacity:.6">[auth + role]</small></div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/mahasiswa/dashboard</div><div class="route-desc">Dashboard mahasiswa</div></div></div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/mahasiswa/biodata/{id}</div><div class="route-desc">Form edit biodata</div></div></div>
+        <div class="route-item"><span class="method m-post">POST</span><div><div class="route-path">/mahasiswa/biodata/{id}</div><div class="route-desc">Simpan biodata + foto</div></div></div>
+        <div class="route-item"><span class="method m-get">GET</span><div><div class="route-path">/mahasiswa/ganti-password</div><div class="route-desc">Form ganti sandi</div></div></div>
+        <div class="route-item"><span class="method m-post">POST</span><div><div class="route-path">/mahasiswa/ganti-password</div><div class="route-desc">Proses ganti sandi</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 6 — ALUR LOGIN ═══ -->
+  <div class="slide" id="s6">
+    <h2 class="slide-title">Alur Login</h2>
+    <p class="slide-sub">Dari membuka browser hingga masuk dashboard yang tepat sesuai role</p>
+    <div class="flow-wrap">
+      <div class="flow-row">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-label">🌐 Buka "/"</div>
+          <div class="step-desc">User buka halaman utama</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-label">🛡️ Cek Login</div>
+          <div class="step-desc">Auth::check() — sudah login?</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-label">📋 Form Login</div>
+          <div class="step-desc">Tampilkan auth/login.blade.php</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-label">📤 Submit</div>
+          <div class="step-desc">POST /login → AuthController</div>
+        </div>
+      </div>
+      <div class="flow-connector"></div>
+      <div class="flow-row">
+        <div class="flow-step" style="flex:none;width:220px">
+          <div class="step-num">5</div>
+          <div class="step-label">🔑 Auth::attempt()</div>
+          <div class="step-desc">Cocokkan username+password dengan DB</div>
+        </div>
+        <div class="flow-arrow" style="color:var(--accent3)">→ ❌</div>
+        <div class="flow-outcome outcome-fail">
+          <div class="outcome-label oc-pink">GAGAL</div>
+          <div class="outcome-desc">Kembali ke form<br>+ pesan error</div>
+        </div>
+        <div style="width:20px"></div>
+        <div class="flow-arrow" style="color:var(--accent4)">✅ →</div>
+        <div class="flow-outcome outcome-success" style="flex:2">
+          <div class="outcome-label oc-green">BERHASIL → Cek Role</div>
+          <div class="outcome-desc" style="display:flex;gap:12px;justify-content:center;margin-top:6px">
+            <span class="tag tag-purple" style="font-size:.7rem;padding:4px 10px">admin/super_admin/teknisi → /admin/dashboard</span>
+            <span class="tag tag-cyan" style="font-size:.7rem;padding:4px 10px">mahasiswa/dosen → /mahasiswa/dashboard</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 7 — MIDDLEWARE ═══ -->
+  <div class="slide" id="s7">
+    <h2 class="slide-title">Sistem Keamanan — Middleware</h2>
+    <p class="slide-sub">RoleMiddleware bertindak sebagai satpam yang mengecek setiap request sebelum masuk</p>
+    <div class="mw-wrap">
+      <div class="mw-step">
+        <div class="mw-icon">🌐</div>
+        <div class="mw-content">
+          <div class="mw-title">Request Masuk ke URL Terproteksi</div>
+          <div class="mw-desc">Misal: <code style="color:#a5b4fc">/admin/dashboard</code> atau <code style="color:var(--accent2)">/mahasiswa/biodata/1</code></div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--accent1);font-size:1.2rem">↓</div>
+      <div class="mw-step">
+        <div class="mw-icon">🛡️</div>
+        <div class="mw-content">
+          <div class="mw-title">Middleware: <code>auth</code> — Sudah Login?</div>
+          <div class="mw-desc">Jika belum login → redirect ke <code>/</code> (halaman login)</div>
+          <div class="mw-code">if (!Auth::check()) return redirect('/');</div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--accent1);font-size:1.2rem">↓</div>
+      <div class="mw-step">
+        <div class="mw-icon">🎭</div>
+        <div class="mw-content">
+          <div class="mw-title">Middleware: <code>role:...</code> — Role Sesuai?</div>
+          <div class="mw-desc">Jika role tidak cocok → redirect ke dashboard yang tepat (bukan error 403)</div>
+          <div class="mw-badge-wrap">
+            <span class="tag tag-pink" style="font-size:.72rem;padding:3px 10px">role:super_admin,admin,teknisi → /admin/*</span>
+            <span class="tag tag-cyan" style="font-size:.72rem;padding:3px 10px">role:mahasiswa,dosen → /mahasiswa/*</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--accent4);font-size:1.2rem">↓</div>
+      <div class="mw-step" style="border-color:rgba(52,211,153,.4)">
+        <div class="mw-icon">✅</div>
+        <div class="mw-content">
+          <div class="mw-title" style="color:var(--accent4)">Lanjut ke Controller</div>
+          <div class="mw-desc">Request diproses, data diambil dari Model, View ditampilkan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 8 — STATUS FITUR ═══ -->
+  <div class="slide" id="s8">
+    <h2 class="slide-title">Status Pengembangan</h2>
+    <p class="slide-sub">Progress fitur yang sudah selesai dan yang masih perlu dikembangkan</p>
+    <div class="status-grid">
+      <div class="status-card" style="border-color:rgba(52,211,153,.3)">
+        <h4><span>✅</span> <span style="color:var(--accent4)">Fitur Selesai</span></h4>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Login Multi-Role</div><div class="item-note">Admin, Mahasiswa, Dosen, Teknisi</div></div></div>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Register Admin & Mahasiswa</div><div class="item-note">Buat akun + data profil</div></div></div>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Reset & Ganti Password</div><div class="item-note">Hash + verifikasi password lama</div></div></div>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Edit Biodata + Upload Foto</div><div class="item-note">Simpan file ke storage Laravel</div></div></div>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Dashboard Admin & Mahasiswa</div><div class="item-note">Info sesuai user yang login</div></div></div>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Hapus Mahasiswa (Admin)</div><div class="item-note">Hapus data + akun user sekaligus</div></div></div>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Middleware Keamanan Role</div><div class="item-note">Proteksi semua halaman</div></div></div>
+        <div class="status-item"><span class="check s-done">✓</span><div><div class="item-label">Database Schema Lengkap</div><div class="item-note">8 tabel via Laravel Migration</div></div></div>
+      </div>
+      <div class="status-card" style="border-color:rgba(244,114,182,.3)">
+        <h4><span>🚧</span> <span style="color:var(--accent3)">Perlu Dikembangkan</span></h4>
+        <div class="status-item"><span class="check s-todo">○</span><div><div class="item-label">Form Buat Laporan Kerusakan</div><div class="item-note">Tabel sudah ada, Controller belum</div></div></div>
+        <div class="status-item"><span class="check s-todo">○</span><div><div class="item-label">Update Status Laporan</div><div class="item-note">Teknisi update: Diperbaiki → Selesai</div></div></div>
+        <div class="status-item"><span class="check s-todo">○</span><div><div class="item-label">Manajemen Teknisi</div><div class="item-note">Tabel teknisi ada, CRUD belum ada</div></div></div>
+        <div class="status-item"><span class="check s-todo">○</span><div><div class="item-label">Manajemen Fasilitas & Lokasi</div><div class="item-note">Tabel sudah ada, belum dipakai</div></div></div>
+        <div class="status-item"><span class="check s-todo">○</span><div><div class="item-label">Register Teknisi</div><div class="item-note">Hanya ada register admin & mahasiswa</div></div></div>
+        <div class="status-item"><span class="check s-todo">○</span><div><div class="item-label">Relasi Antar Tabel (FK)</div><div class="item-note">laporan & riwayat_status belum berelasi</div></div></div>
+        <div class="status-item"><span class="check s-warn">⚠</span><div><div class="item-label">Reset Password Tidak Aman</div><div class="item-note">Perlu tambah verifikasi email/OTP</div></div></div>
+        <div class="status-item"><span class="check s-warn">⚠</span><div><div class="item-label">Password Tersimpan Ganda</div><div class="item-note">mahasiswa.Sandi vs user.password</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 9 — KODE KUNCI ═══ -->
+  <div class="slide" id="s9">
+    <h2 class="slide-title">Konsep Kode Kunci Laravel</h2>
+    <p class="slide-sub">Pola-pola penting yang digunakan dalam proyek ini</p>
+    <div class="code-grid">
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-dot cd-red"></span><span class="code-dot cd-yellow"></span><span class="code-dot cd-green"></span>
+          &nbsp; AuthController.php — Login
+        </div>
+        <pre><span class="kw">if</span> (<span class="cl">Auth</span>::<span class="fn">attempt</span>($credentials)) {
+  <span class="cm">// Redirect sesuai role</span>
+  <span class="kw">return match</span> ($role) {
+    <span class="str">'admin'</span> => redirect(<span class="str">'admin.dashboard'</span>),
+    <span class="str">'mahasiswa'</span> => redirect(<span class="str">'mhs.dashboard'</span>),
+  };
+}</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-dot cd-red"></span><span class="code-dot cd-yellow"></span><span class="code-dot cd-green"></span>
+          &nbsp; RegisterController.php — Daftar
+        </div>
+        <pre><span class="cm">// Hash password sebelum simpan</span>
+$hash = <span class="cl">Hash</span>::<span class="fn">make</span>($request->sandi);
+
+<span class="cl">Mahasiswa</span>::<span class="fn">create</span>([<span class="str">'Nim'</span> => $nim, ...]);
+
+<span class="cl">User</span>::<span class="fn">create</span>([
+  <span class="str">'username'</span> => $nim, <span class="cm">// NIM = username</span>
+  <span class="str">'role'</span> => <span class="str">'mahasiswa'</span>,
+]);</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-dot cd-red"></span><span class="code-dot cd-yellow"></span><span class="code-dot cd-green"></span>
+          &nbsp; MahasiswaController.php — Upload Foto
+        </div>
+        <pre><span class="kw">if</span> ($request-><span class="fn">hasFile</span>(<span class="str">'foto_profil'</span>)) {
+  <span class="cm">// Hapus foto lama</span>
+  <span class="cl">Storage</span>::<span class="fn">disk</span>(<span class="str">'public'</span>)
+    -><span class="fn">delete</span>($mhs->foto_profil);
+
+  <span class="cm">// Simpan foto baru</span>
+  $data[<span class="str">'foto_profil'</span>] = $request
+    -><span class="fn">file</span>(<span class="str">'foto_profil'</span>)
+    -><span class="fn">store</span>(<span class="str">'foto_profil'</span>, <span class="str">'public'</span>);
+}</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-dot cd-red"></span><span class="code-dot cd-yellow"></span><span class="code-dot cd-green"></span>
+          &nbsp; RoleMiddleware.php — Keamanan
+        </div>
+        <pre><span class="kw">public function</span> <span class="fn">handle</span>($request, $next, ...$roles)
+{
+  <span class="kw">if</span> (!<span class="cl">Auth</span>::<span class="fn">check</span>())
+    <span class="kw">return</span> <span class="fn">redirect</span>(<span class="str">'/'</span>); <span class="cm">// belum login</span>
+
+  <span class="kw">if</span> (!<span class="fn">in_array</span>(<span class="cl">Auth</span>::user()->role, $roles))
+    <span class="kw">return</span> <span class="fn">redirect</span>()-><span class="fn">route</span>(<span class="str">'admin.dashboard'</span>);
+
+  <span class="kw">return</span> <span class="fn">$next</span>($request); <span class="cm">// ✓ lanjut</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 10 — PENUTUP ═══ -->
+  <div class="slide" id="s10">
+    <h2>Terima Kasih! 🎉</h2>
+    <p class="slide-sub" style="font-size:1rem">Sistem Informasi Fasilitas Kampus — Laravel 11</p>
+    <div class="closing-grid">
+      <div class="closing-card">
+        <div class="cc-icon">🏗️</div>
+        <div class="cc-title">Arsitektur MVC</div>
+        <div class="cc-desc">Model · View · Controller yang terstruktur dan mudah dikembangkan</div>
+      </div>
+      <div class="closing-card">
+        <div class="cc-icon">🔐</div>
+        <div class="cc-title">Multi-Role Auth</div>
+        <div class="cc-desc">5 jenis pengguna dengan hak akses terpisah via Middleware</div>
+      </div>
+      <div class="closing-card">
+        <div class="cc-icon">🗄️</div>
+        <div class="cc-title">8 Tabel Database</div>
+        <div class="cc-desc">Schema lengkap via Laravel Migration, siap untuk dikembangkan</div>
+      </div>
+      <div class="closing-card">
+        <div class="cc-icon">✅</div>
+        <div class="cc-title">Fitur Auth Lengkap</div>
+        <div class="cc-desc">Login, Register, Reset Password, Ganti Password, Biodata</div>
+      </div>
+      <div class="closing-card">
+        <div class="cc-icon">🚀</div>
+        <div class="cc-title">Siap Dikembangkan</div>
+        <div class="cc-desc">Laporan kerusakan, manajemen teknisi & fasilitas menanti</div>
+      </div>
+      <div class="closing-card">
+        <div class="cc-icon">💡</div>
+        <div class="cc-title">Stack Modern</div>
+        <div class="cc-desc">Laravel 11 · PHP · MySQL · Blade · XAMPP</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #deck -->
+
+<!-- NAVIGATION -->
+<div id="nav">
+  <button class="nav-btn" id="prev">◀</button>
+  <div class="dots" id="dots"></div>
+  <span id="slide-counter">1 / 10</span>
+  <button class="nav-btn" id="next">▶</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let current  = 0;
+
+  document.getElementById('tot').textContent = total;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot-nav' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 500);
+    current = n;
+    slides[current].classList.add('active');
+
+    // Update dots
+    document.querySelectorAll('.dot-nav').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+
+    // Update counter
+    document.getElementById('slide-counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('cur').textContent = current + 1;
+
+    // Update progress
+    const pct = ((current + 1) / total) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  }
+
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') goTo(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    goTo(current - 1);
+  });
+
+  // Swipe
+  let startX = 0;
+  document.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx < -50) goTo(current + 1);
+    if (dx >  50) goTo(current - 1);
+  });
+
+  // Init progress
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>

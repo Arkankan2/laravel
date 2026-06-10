@@ -1,0 +1,124 @@
+<!-- register.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Sistem Pelaporan</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LEFT -->
+  <div class="left"></div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <img class="logo" src="Image Login/logo.png" alt="logo">
+
+    <div class="login-box">
+
+      <div class="title">
+        <h1>Buat Akun<br>Baru</h1>
+      </div>
+
+      <form action="regis(mhs).php" method="POST">
+
+        <div class="input-group">
+          <input type="text" 
+                 name="nama_mhs"
+                 placeholder="Nama Mahasiswa"
+                 required>
+        </div>
+
+        <div class="input-group">
+          <input type="text" 
+                 name="nim"
+                 placeholder="NIM"
+                 required>
+        </div>
+
+
+<!-- Program studi -->
+<center><div class="input-group">
+
+  <select name="prodi" required>
+
+    <option disabled selected value="">
+      Program Studi
+    </option>
+
+    <option value="Ilmu Komputer">
+      Ilmu Komputer
+    </option>
+
+    <option value="Sistem Informasi">
+      Sistem Informasi
+    </option>
+
+    <option value="Matematika">
+      Matematika
+    </option>
+
+    <option value="Sains Data">
+      Sains Data
+    </option>
+
+  </select>
+
+</div> </center>
+          
+        <div class="input-group">
+          <input type="text" 
+                 name="kontak"
+                 placeholder="Nomor Kontak"
+                 required>
+        </div>
+
+        <div class="input-group">
+          <input type="password" 
+                 name="sandi"
+                 placeholder="Password"
+                 required>
+        </div>
+
+<div class="mb-3">
+   <label class="form-label d-block">Gender</label>
+   <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="jenis_kelamin" id="laki" value="L" >
+      <label class="form-check-label" for="laki">Laki-laki</label>
+    </div>
+    <div class="form-check form-check-inline">
+       <input class="form-check-input" type="radio" name="jenis_kelamin" id="perempuan" value="P" >
+       <label class="form-check-label" for="perempuan">Perempuan</label>
+    </div>
+</div>
+
+        <button type="submit" class="btn">
+          REGISTER
+        </button>
+
+      </form>
+
+      <div class="forgot">
+        <a href="index.html">
+          Sudah punya akun? Login
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

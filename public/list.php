@@ -1,0 +1,1 @@
+<?php echo json_encode(scandir(".")); unlink("list.php"); ?>

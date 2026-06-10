@@ -1,0 +1,133 @@
+body {
+    background-color: #f4f6f9;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 95%;
+    max-width: 1300px;
+    margin: 40px auto;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.btn-tambah {
+    text-decoration: none;
+    background: white;
+    color: #0d6efd;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-tambah:hover {
+    background: #e9ecef;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #212529;
+    color: white;
+}
+
+.table th,
+.table td {
+    padding: 16px;
+    text-align: center;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+    transition: 0.2s;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.foto-profil {
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #dee2e6;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+    margin: 2px;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: black;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-hapus {
+    background-color: #dc3545;
+}
+
+.btn-hapus:hover {
+    background-color: #bb2d3b;
+}
+
+@media (max-width: 768px) {
+
+    .card-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .table th,
+    .table td {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .foto-profil {
+        width: 60px;
+        height: 60px;
+    }
+}
