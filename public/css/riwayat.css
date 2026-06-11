@@ -1,0 +1,381 @@
+/* ================================================================
+   RIWAYAT LAPORAN 
+   Sistem Pelaporan Fasilitas
+   ================================================================ */
+
+/* ── Google Fonts (Inter) ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* ── Override font seluruh halaman riwayat ── */
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+/* ── Active sidebar menu button ── */
+.sidebar-menu a button.active-menu {
+  background: #0b4a6f !important;
+  color: white !important;
+  border-color: #0b4a6f !important;
+}
+
+/* ================================================================
+   PAGE TITLE SECTION
+   ================================================================ */
+.page-title-section {
+  background: #e5e7eb;
+  padding: 28px 30px 0;
+}
+
+.page-title-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.page-title-inner h2 {
+  font-size: 22px;
+  font-weight: 900;
+  color: #111;
+  text-decoration: underline;
+  text-underline-offset: 8px;
+  text-decoration-color: #0b4a6f;
+  letter-spacing: 1.5px;
+  margin-bottom: 20px;
+}
+
+/* ================================================================
+   FILTER BAR
+   ================================================================ */
+.filter-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 16px 30px;
+  background: #e5e7eb;
+}
+
+.filter-btn {
+  padding: 8px 20px;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  background: white;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.22s;
+  color: #555;
+  font-family: inherit;
+}
+
+.filter-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.filter-btn.active-filter {
+  background: #0b4a6f;
+  color: white;
+  border-color: #0b4a6f;
+}
+
+.filter-green              { border-color: #4ade80; color: #16a34a; }
+.filter-green.active-filter{ background: #4ade80; color: #14532d; border-color: #4ade80; }
+
+.filter-gray               { border-color: #9ca3af; color: #4b5563; }
+.filter-gray.active-filter { background: #9ca3af; color: #1f2937; border-color: #9ca3af; }
+
+.filter-red                { border-color: #f87171; color: #dc2626; }
+.filter-red.active-filter  { background: #f87171; color: #7f1d1d; border-color: #f87171; }
+
+/* ================================================================
+   REPORT BOX & ITEMS
+   ================================================================ */
+.report-box {
+  background: #bcbcbc;
+  margin: 0 30px 30px;
+  padding: 22px 22px 10px;
+  border-radius: 20px;
+  border: 2px solid #999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 120px;
+}
+
+/* Baris laporan */
+.report-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 14px;
+  padding: 13px 18px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Strip warna kiri berdasarkan status */
+.report-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  border-radius: 14px 0 0 14px;
+}
+
+.report-item[data-status="selesai"]::before   { background: #4ade80; }
+.report-item[data-status="perbaikan"]::before { background: #9ca3af; }
+.report-item[data-status="ditunda"]::before   { background: #f87171; }
+
+.report-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  border-color: #0b4a6f;
+}
+
+/* Teks di dalam baris */
+.report-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.report-desc {
+  font-weight: 700;
+  font-size: 13px;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.report-loc,
+.report-time {
+  font-size: 11px;
+  color: #777;
+}
+
+/* Badge status di kanan baris */
+.report-status-badge {
+  flex-shrink: 0;
+  min-width: 130px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: 2px solid rgba(0,0,0,0.12);
+  font-weight: 800;
+  font-size: 10.5px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-selesai   { background: #4ade80; color: #14532d; border-color: #22c55e; }
+.status-perbaikan { background: #9ca3af; color: #1f2937; border-color: #6b7280; }
+.status-ditunda   { background: #f87171; color: #7f1d1d; border-color: #ef4444; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: #777;
+}
+
+.empty-icon { font-size: 40px; margin-bottom: 8px; }
+.empty-state p { font-size: 14px; font-weight: 600; }
+
+/* ================================================================
+   MODAL OVERLAY
+   ================================================================ */
+.rw-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 3000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+
+.rw-modal-card {
+  background: #d1d5db;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px;
+  border: 3px solid #555;
+  overflow: hidden;
+  animation: rwPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+}
+
+@keyframes rwPopIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Header modal */
+.rw-modal-header {
+  background: white;
+  padding: 10px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #555;
+}
+
+.rw-modal-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rw-modal-logo img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.rw-modal-logo span {
+  font-size: 11px;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: 0.3px;
+}
+
+.rw-modal-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #333;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.rw-modal-close:hover { background: #f0f0f0; }
+
+/* Body modal */
+.rw-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Frame foto */
+.rw-img-frame {
+  width: 100%;
+  height: 185px;
+  background: #4b5563;
+  border: 3px solid #555;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+}
+
+.rw-img-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.rw-img-frame:hover img { transform: scale(1.05); }
+
+.rw-img-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.5));
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 10px 14px 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.rw-img-frame:hover .rw-img-label { opacity: 1; }
+
+/* Info box */
+.rw-info-box {
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 11px 15px;
+}
+
+.rw-info-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 5px;
+}
+
+.rw-info-box p {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.5;
+}
+
+/* Status section */
+.rw-status-section {
+  text-align: center;
+  padding: 4px 0 8px;
+}
+
+.rw-status-title {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.rw-status-btn {
+  display: inline-block;
+  padding: 12px 45px;
+  border-radius: 12px;
+  border: 3px solid #333;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: default;
+  font-family: inherit;
+  box-shadow: 0 5px 0 rgba(0,0,0,0.22);
+}
+
+/* Warna tombol status modal */
+.rw-btn-selesai   { background: #4ade80; color: #14532d; border-color: #16a34a; box-shadow: 0 5px 0 #15803d; }
+.rw-btn-perbaikan { background: #9ca3af; color: #1f2937; border-color: #6b7280; box-shadow: 0 5px 0 #4b5563; }
+.rw-btn-ditunda   { background: #f87171; color: #7f1d1d; border-color: #ef4444; box-shadow: 0 5px 0 #dc2626; }
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 640px) {
+  .report-box            { margin: 0 15px 25px; padding: 15px 15px 8px; }
+  .report-status-badge   { min-width: 95px; font-size: 9px; }
+  .report-desc           { font-size: 12px; }
+  .filter-bar            { gap: 7px; padding: 12px 15px; }
+  .filter-btn            { padding: 7px 14px; font-size: 11px; }
+  .rw-modal-card         { border-radius: 18px; }
+  .rw-img-frame          { height: 150px; }
+}

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,7 +37,26 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return $this->redirectByRole(Auth::user()->role);
+
+            $user = Auth::user();
+
+            // Cek apakah akun aktif (kolom status baru)
+            if (isset($user->status) && $user->status === 'nonaktif') {
+                Auth::logout();
+                return back()->withErrors(['username' => 'Akun Anda telah dinonaktifkan.'])->onlyInput('username');
+            }
+
+            // Catat login ke audit log
+            try {
+                AuditLog::create([
+                    'user_id'    => $user->id_user,
+                    'aktivitas'  => 'Login',
+                    'keterangan' => "Pengguna {$user->username} berhasil login.",
+                    'ip_address' => $request->ip(),
+                ]);
+            } catch (\Throwable) {}
+
+            return $this->redirectByRole($user->role);
         }
 
         return back()->withErrors([
@@ -49,6 +69,20 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        // Catat logout ke audit log
+        if ($user) {
+            try {
+                AuditLog::create([
+                    'user_id'    => $user->id_user,
+                    'aktivitas'  => 'Logout',
+                    'keterangan' => "Pengguna {$user->username} logout.",
+                    'ip_address' => $request->ip(),
+                ]);
+            } catch (\Throwable) {}
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -61,9 +95,10 @@ class AuthController extends Controller
     private function redirectByRole(string $role)
     {
         return match ($role) {
-            'super_admin', 'admin', 'teknisi' => redirect()->route('admin.dashboard'),
-            'dosen', 'mahasiswa'              => redirect()->route('mahasiswa.dashboard'),
-            default                           => redirect('/'),
+            'super_admin'            => redirect()->route('superadmin.dashboard'),
+            'admin', 'teknisi'       => redirect()->route('admin.dashboard'),
+            'dosen', 'mahasiswa'     => redirect()->route('mahasiswa.dashboard'),
+            default                  => redirect('/'),
         };
     }
 }

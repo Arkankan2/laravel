@@ -4,7 +4,7 @@
 
 @section('sidebar-menu')
   <a href="{{ route('mahasiswa.dashboard') }}"><button>Dashboard</button></a>
-  <button>Buat Laporan</button>
+  <a href="{{ route('laporan.create') }}"><button>Buat Laporan</button></a>
   <a href="{{ route('laporan.status') }}"><button>Status Laporan</button></a>
   <button>Riwayat Tersedia</button>
   <button>Notifikasi</button>
@@ -33,7 +33,7 @@
     <!-- CARDS -->
     <div class="cards">
       <div class="card" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">
-        <span style="font-size:28px;font-weight:700;color:#0b4a6f;">0</span>
+        <span style="font-size:28px;font-weight:700;color:#0b4a6f;" <? $row   ?> 1</span>
         <span style="font-size:13px;color:#777;">Laporan Dibuat</span>
       </div>
       <div class="card" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">
@@ -53,7 +53,7 @@
 
   <!-- BUTTONS -->
   <div class="buttons">
-    <a href="#"><button>Buat Laporan</button></a>
+    <a href="{{ route('laporan.create') }}"><button>Buat Laporan</button></a>
     <a href="{{ route('laporan.status') }}"><button>Pantau Laporan</button></a>
     <a href="#"><button>Riwayat Laporan</button></a>
   </div>

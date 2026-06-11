@@ -13,6 +13,10 @@ class User extends Authenticatable
         'username',
         'password',
         'role',
+        'nama',
+        'email',
+        'status',
+        'foto_profil',
     ];
 
     protected $hidden = [
@@ -34,5 +38,29 @@ class User extends Authenticatable
     public function getAuthPassword(): string
     {
         return $this->password;
+    }
+
+    /**
+     * Cek apakah akun aktif.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'aktif';
+    }
+
+    /**
+     * Relasi ke audit logs.
+     */
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class, 'user_id', 'id_user');
+    }
+
+    /**
+     * Scope untuk filter per role.
+     */
+    public function scopeRole($query, string $role)
+    {
+        return $query->where('role', $role);
     }
 }

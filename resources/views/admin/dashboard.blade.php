@@ -8,6 +8,7 @@
   <a href="#"><button>Semua Laporan</button></a>
   <a href="#"><button>Teknisi Tersedia</button></a>
   <a href="{{ route('admin.mahasiswa') }}"><button>Daftar Mahasiswa</button></a>
+  <a href="{{ route('admin.riwayat') }}"><button>Riwayat Laporan</button></a>
 @endsection
 
 @section('profile-name') {{ $admin->nama_admin ?? $user->username }} @endsection
@@ -53,7 +54,7 @@
   <div class="buttons">
     <a href="{{ route('admin.mahasiswa') }}"><button>Daftar Mahasiswa</button></a>
     <button>Verifikasi Laporan</button>
-    <button>Riwayat Laporan</button>
+    <a href="{{ route('admin.riwayat') }}"><button>Riwayat Laporan</button></a>
   </div>
 
 @endsection

@@ -1,0 +1,373 @@
+/* =============================================
+   BUAT LAPORAN - CSS
+   Mengikuti gaya dashboard yang sudah ada
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+/* ── FORM WRAPPER ── */
+.laporan-wrapper {
+    max-width: 720px;
+    margin: 30px auto 60px;
+    padding: 0 20px;
+}
+
+/* ── PAGE TITLE ── */
+.laporan-title {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.laporan-title h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0b4a6f;
+    letter-spacing: 0.5px;
+    position: relative;
+    display: inline-block;
+}
+
+.laporan-title h2::after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(90deg, #0b4a6f, #2196F3);
+    margin: 6px auto 0;
+    border-radius: 4px;
+}
+
+/* ── FORM CARD ── */
+.laporan-card {
+    background: #ffffff;
+    border: 1.5px solid #dde3ec;
+    border-radius: 16px;
+    padding: 36px 40px;
+    box-shadow: 0 6px 24px rgba(11, 74, 111, 0.10);
+}
+
+/* ── ALERT / FLASH ── */
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 14px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.alert-error ul {
+    margin: 6px 0 0 18px;
+}
+
+/* ── FORM GROUPS ── */
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 7px;
+    letter-spacing: 0.3px;
+}
+
+.form-group label span.required {
+    color: #e53e3e;
+    margin-left: 3px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #d1d9e0;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #1f2937;
+    background: #f9fafb;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.form-control:focus {
+    border-color: #0b4a6f;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(11, 74, 111, 0.12);
+}
+
+select.form-control {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230b4a6f' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+    cursor: pointer;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.6;
+}
+
+/* ── TINGKAT KERUSAKAN (Radio Pills) ── */
+.kerusakan-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.kerusakan-pill input[type="radio"] {
+    display: none;
+}
+
+.kerusakan-pill label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 22px;
+    border: 2px solid #d1d9e0;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.kerusakan-pill label:hover {
+    border-color: #0b4a6f;
+    color: #0b4a6f;
+    background: #eff6ff;
+}
+
+.kerusakan-pill.rendah input:checked + label {
+    background: #d1fae5;
+    border-color: #059669;
+    color: #065f46;
+}
+
+.kerusakan-pill.sedang input:checked + label {
+    background: #fef3c7;
+    border-color: #d97706;
+    color: #92400e;
+}
+
+.kerusakan-pill.parah input:checked + label {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+}
+
+/* Dot indicator */
+.kerusakan-pill label::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+}
+
+/* ── UPLOAD FOTO ── */
+.upload-area {
+    border: 2px dashed #b0bec5;
+    border-radius: 12px;
+    background: #f8fafc;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+}
+
+.upload-area:hover {
+    border-color: #0b4a6f;
+    background: #eff6ff;
+}
+
+.upload-area.drag-over {
+    border-color: #2196F3;
+    background: #e3f2fd;
+}
+
+.upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.upload-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.upload-area p {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.upload-area p strong {
+    color: #0b4a6f;
+}
+
+.upload-area small {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* Preview gambar */
+#preview-container {
+    display: none;
+    margin-top: 14px;
+    position: relative;
+}
+
+#preview-container img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1.5px solid #d1d9e0;
+}
+
+#remove-photo {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(220, 38, 38, 0.85);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+#remove-photo:hover {
+    background: #dc2626;
+}
+
+/* ── DIVIDER ── */
+.form-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 28px 0;
+}
+
+/* ── SUBMIT BUTTON ── */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #0b4a6f, #1565C0);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #093b5a, #0d47a1);
+    box-shadow: 0 6px 20px rgba(11, 74, 111, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.btn-submit .btn-icon {
+    margin-right: 8px;
+}
+
+/* ── BATAL LINK ── */
+.cancel-link {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.cancel-link:hover {
+    color: #0b4a6f;
+    text-decoration: underline;
+}
+
+/* ── INFO BADGE ── */
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 22px;
+}
+
+/* ── GRID 2 COL ── */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+@media (max-width: 600px) {
+    .laporan-card {
+        padding: 24px 20px;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .kerusakan-group {
+        flex-direction: column;
+    }
+}
