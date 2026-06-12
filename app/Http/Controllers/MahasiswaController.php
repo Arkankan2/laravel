@@ -18,10 +18,48 @@ class MahasiswaController extends Controller
     {
         $user = Auth::user();
         // Cari data mahasiswa berdasarkan NIM = username
-        $mhs = Mahasiswa::where('Nim', $user->username)->first()
-               ?? (object)['Nama_mahasiswa' => $user->username, 'Nim' => $user->username];
+        $mhsModel = Mahasiswa::where('Nim', $user->username)->first();
+        $mhs = $mhsModel ?? (object)[
+            'Nama_mahasiswa'  => $user->username,
+            'Nim'             => $user->username,
+            'id_mahasiswa'    => 0,
+            'prodi'           => null,
+            'foto_profil'     => null,
+        ];
 
-        return view('mahasiswa.dashboard', compact('user', 'mhs'));
+        // ── Statistik Laporan ──────────────────────────────────
+        $statsQuery = $mhsModel
+            ? \App\Models\Laporan::where('id_mahasiswa', $mhsModel->id_mahasiswa)
+            : \App\Models\Laporan::whereNull('id_mahasiswa')->where('id_mahasiswa', -1); // empty
+
+        $totalLaporan    = (clone $statsQuery)->count();
+        $menunggu        = (clone $statsQuery)->where('Status_terkini', 'Sedang Diperbaiki')->count();
+        $selesai         = (clone $statsQuery)->where('Status_terkini', 'Selesai')->count();
+        $dalamProses     = $menunggu; // alias untuk UI
+
+        // ── Laporan Terbaru (maks 5) ───────────────────────────
+        $laporanTerbaru = $mhsModel
+            ? \App\Models\Laporan::with(['kategori', 'lokasi'])
+                ->where('id_mahasiswa', $mhsModel->id_mahasiswa)
+                ->latest()
+                ->take(5)
+                ->get()
+            : collect();
+
+        // ── Laporan Aktif (untuk progress tracker) ────────────
+        $laporanAktif = $mhsModel
+            ? \App\Models\Laporan::with(['kategori', 'lokasi'])
+                ->where('id_mahasiswa', $mhsModel->id_mahasiswa)
+                ->where('Status_terkini', 'Sedang Diperbaiki')
+                ->latest()
+                ->first()
+            : null;
+
+        return view('mahasiswa.dashboard', compact(
+            'user', 'mhs',
+            'totalLaporan', 'menunggu', 'selesai', 'dalamProses',
+            'laporanTerbaru', 'laporanAktif'
+        ));
     }
 
     /**
