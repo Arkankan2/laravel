@@ -19,13 +19,13 @@ class TeknisiController extends Controller
         $user = Auth::user();
 
         // Statistik
-        $totalTugas     = Laporan::count();
-        $tugasBaru      = Laporan::whereIn('Status_terkini', ['Sedang Diperbaiki', 'Menunggu Verifikasi'])->count();
+        $totalTugas      = Laporan::count();
+        $tugasBaru       = Laporan::where('Status_terkini', 'Sedang Diperbaiki')->count();
         $dalamPengerjaan = Laporan::where('Status_terkini', 'Dalam Pengerjaan')->count();
-        $selesai        = Laporan::where('Status_terkini', 'Selesai')->count();
-        $darurat        = Laporan::where('Tingkat_Kerusakan', 'Parah')
-                                 ->whereNotIn('Status_terkini', ['Selesai'])
-                                 ->count();
+        $selesai         = Laporan::where('Status_terkini', 'Selesai')->count();
+        $darurat         = Laporan::where('Tingkat_Kerusakan', 'Parah')
+                                  ->whereNotIn('Status_terkini', ['Selesai'])
+                                  ->count();
 
         // Tugas terbaru (5 teratas)
         $tugasTerbaru = Laporan::with(['mahasiswa', 'kategori', 'lokasi'])
@@ -79,10 +79,10 @@ class TeknisiController extends Controller
         $laporanList = $query->paginate(10)->withQueryString();
 
         // Stat badges
-        $statTotal  = Laporan::count();
-        $statBaru   = Laporan::whereIn('Status_terkini', ['Sedang Diperbaiki', 'Menunggu Verifikasi'])->count();
-        $statProses = Laporan::where('Status_terkini', 'Dalam Pengerjaan')->count();
-        $statSelesai= Laporan::where('Status_terkini', 'Selesai')->count();
+        $statTotal   = Laporan::count();
+        $statBaru    = Laporan::where('Status_terkini', 'Sedang Diperbaiki')->count();
+        $statProses  = Laporan::where('Status_terkini', 'Dalam Pengerjaan')->count();
+        $statSelesai = Laporan::where('Status_terkini', 'Selesai')->count();
 
         return view('Teknisi.tugas', compact(
             'user', 'laporanList',
@@ -149,22 +149,26 @@ class TeknisiController extends Controller
             $fotoPath = $request->file('foto_selesai')->store('bukti-perbaikan', 'public');
         }
 
-        // Update laporan
+        // Update status laporan ke Selesai
         $laporan->update([
             'Status_terkini' => 'Selesai',
-            // Simpan catatan dan foto selesai di kolom terpisah jika ada;
-            // jika tidak, catatan disimpan sebagai append ke deskripsi
         ]);
 
-        // Jika kolom foto_selesai & catatan_selesai belum ada di tabel,
-        // gunakan DB update langsung dengan try-catch
+        // Simpan foto & catatan jika kolomnya sudah ada (opsional)
         try {
-            DB::table('laporan')->where('id_laporan', $id)->update([
-                'foto_selesai'    => $fotoPath,
-                'catatan_selesai' => $request->catatan,
-            ]);
+            $columns = \Illuminate\Support\Facades\Schema::getColumnListing('laporan');
+            $updateData = [];
+            if (in_array('foto_selesai', $columns) && $fotoPath) {
+                $updateData['foto_selesai'] = $fotoPath;
+            }
+            if (in_array('catatan_selesai', $columns)) {
+                $updateData['catatan_selesai'] = $request->catatan;
+            }
+            if (!empty($updateData)) {
+                DB::table('laporan')->where('id_laporan', $id)->update($updateData);
+            }
         } catch (\Exception $e) {
-            // Kolom belum ada — tidak apa-apa, status sudah berubah
+            // Lewati jika kolom belum tersedia
         }
 
         // Notifikasi simulasi (log saja; di production bisa pakai Notification/Mail)

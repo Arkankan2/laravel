@@ -32,21 +32,26 @@
     default  => 'prio-rendah'
   };
   $st = $laporan->Status_terkini ?? '';
-  $isSelesai  = str_contains($st, 'Selesai');
-  $isProses   = str_contains($st, 'Pengerjaan');
+  $isSelesai = ($st === 'Selesai');
+  $isProses  = ($st === 'Dalam Pengerjaan');
+  $isBaru    = ($st === 'Sedang Diperbaiki');
+
   $stClass = match(true) {
     $isSelesai => 'st-selesai',
     $isProses  => 'st-proses',
-    str_contains($st,'Verifikasi') => 'st-menunggu',
-    default => 'st-baru'
+    $isBaru    => 'st-menunggu',
+    default    => 'st-baru'
+  };
+  $stLabel = match(true) {
+    $isSelesai => 'Selesai',
+    $isProses  => 'Dalam Pengerjaan',
+    $isBaru    => 'Menunggu Penanganan',
+    default    => $st
   };
 
   // Timeline step
   $step0 = 'tl-done';   // Laporan Masuk (selalu done)
-  $step1 = match(true) {
-    $isSelesai || $isProses => 'tl-done',
-    default => 'tl-done'
-  };
+  $step1 = 'tl-done';   // Disposisi Admin (sudah done karena laporan ada)
   $step2 = match(true) {
     $isSelesai => 'tl-done',
     $isProses  => 'tl-active',
@@ -84,7 +89,7 @@
     </div>
     <div class="page-actions">
       <span class="priority-badge {{ $prioClass }}" style="font-size:12px;">{{ $pr }}</span>
-      <span class="status-badge {{ $stClass }}" style="font-size:12px;">{{ $st }}</span>
+      <span class="status-badge {{ $stClass }}" style="font-size:12px;">{{ $stLabel }}</span>
     </div>
   </div>
 
@@ -165,7 +170,7 @@
 
             <div class="info-group">
               <div class="info-label">Status Saat Ini</div>
-              <div class="info-value"><span class="status-badge {{ $stClass }}" style="font-size:12px;">{{ $st }}</span></div>
+              <div class="info-value"><span class="status-badge {{ $stClass }}" style="font-size:12px;">{{ $stLabel }}</span></div>
             </div>
 
             <div class="info-group">
@@ -337,7 +342,7 @@
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-md);">
               <span style="font-size:12px;color:var(--gray-500);font-weight:600;">Status</span>
-              <span class="status-badge {{ $stClass }}" style="font-size:11px;">{{ $st }}</span>
+              <span class="status-badge {{ $stClass }}" style="font-size:11px;">{{ $stLabel }}</span>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-md);">
               <span style="font-size:12px;color:var(--gray-500);font-weight:600;">Durasi</span>

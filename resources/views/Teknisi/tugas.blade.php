@@ -159,10 +159,16 @@
               };
               $st = $lap->Status_terkini ?? '';
               $stClass = match(true) {
-                str_contains($st,'Selesai')    => 'st-selesai',
-                str_contains($st,'Pengerjaan') => 'st-proses',
-                str_contains($st,'Verifikasi') => 'st-menunggu',
-                default => 'st-baru'
+                str_contains($st,'Selesai')         => 'st-selesai',
+                str_contains($st,'Pengerjaan')      => 'st-proses',
+                $st === 'Sedang Diperbaiki'         => 'st-menunggu',
+                default                             => 'st-baru'
+              };
+              $stLabel = match(true) {
+                str_contains($st,'Selesai')         => 'Selesai',
+                str_contains($st,'Pengerjaan')      => 'Dalam Pengerjaan',
+                $st === 'Sedang Diperbaiki'         => 'Menunggu Penanganan',
+                default                             => $st
               };
             @endphp
             <tr>
@@ -198,7 +204,7 @@
                 <span class="priority-badge {{ $prioClass }}">{{ $prioIcon }} {{ $pr }}</span>
               </td>
               <td>
-                <span class="status-badge {{ $stClass }}">{{ $st }}</span>
+                <span class="status-badge {{ $stClass }}">{{ $stLabel }}</span>
               </td>
               <td style="font-size:11.5px;color:var(--gray-400);white-space:nowrap;">
                 {{ $lap->created_at->format('d M Y') }}
