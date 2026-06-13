@@ -31,6 +31,24 @@ class LaporanController extends Controller
     }
 
     /**
+     * Tampilkan halaman pantau laporan (monitoring detail per laporan).
+     */
+    public function pantau()
+    {
+        $user = Auth::user();
+        $mhs  = Mahasiswa::where('Nim', $user->username)->first();
+
+        $laporan = $mhs
+            ? Laporan::with(['kategori', 'lokasi'])
+                     ->where('id_mahasiswa', $mhs->id_mahasiswa)
+                     ->latest()
+                     ->get()
+            : collect();
+
+        return view('mahasiswa.pantau_laporan', compact('user', 'mhs', 'laporan'));
+    }
+
+    /**
      * Tampilkan form buat laporan.
      */
     public function create()
@@ -82,7 +100,7 @@ class LaporanController extends Controller
             'foto'             => $fotoPath,
         ]);
 
-        return redirect()->route('laporan.status')
+        return redirect()->route('laporan.pantau')
                          ->with('success', 'Laporan berhasil dikirim! Tim kami akan segera menindaklanjuti.');
     }
 }

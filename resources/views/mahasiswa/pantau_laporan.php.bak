@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Monitoring Aspirasi Fasilitas Kampus</title>
+    <style>
+        /* --- DESIGN SYSTEM & CONFIGURATION --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --bg-app: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            
+            /* Status Colors */
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            
+            --shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05);
+            --radius: 12px;
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-body);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- TOP APPS BAR --- */
+        .app-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .app-header h1 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-title);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- MAIN LAYOUT CONTROLLER --- */
+        .dashboard-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* --- SISI KIRI: DAFTAR LAPORAN (LIST SIDEBAR) --- */
+        .sidebar-list {
+            width: 380px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .list-search-area {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 5;
+        }
+
+        .list-search-area h2 {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        /* Card List Item */
+        .report-item {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .report-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .report-item.active {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+        }
+
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-title);
+            line-height: 1.4;
+        }
+
+        /* --- SISI KANAN: MONITORING UTAMA (DYNAMIC DETAILS) --- */
+        .main-monitor-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* --- BAR PROGRESS / STEPPER BAR ATAS --- */
+        .stepper-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .stepper-wrapper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        /* Line Background */
+        .stepper-line-bg {
+            position: absolute;
+            top: 20px;
+            left: 5%;
+            right: 5%;
+            height: 4px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .stepper-line-fill {
+            position: absolute;
+            top: 20px;
+            left: 5%;
+            height: 4px;
+            background: var(--primary);
+            z-index: 1;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%; /* Diatur via JS */
+        }
+
+        .step-node {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .node-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 3px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .node-label {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* Stepper States via JS */
+        .step-node.completed .node-circle {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .step-node.completed .node-label { color: var(--success); }
+
+        .step-node.active .node-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 0 0 5px var(--primary-light);
+        }
+        .step-node.active .node-label { color: var(--primary); font-weight: 800; }
+
+        /* --- SPLIT GRID: DETAIL & LOGS --- */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
+        }
+
+        .panel-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .panel-title-text {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-title);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .bg-danger { background: var(--danger-light); color: var(--danger); }
+        .bg-warning { background: var(--warning-light); color: var(--warning); }
+        .bg-success { background: var(--success-light); color: var(--success); }
+        .bg-primary { background: var(--primary-light); color: var(--primary); }
+
+        /* Grid Data Info */
+        .info-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        .matrix-item {
+            background: #fafafa;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .matrix-item span {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .matrix-item strong {
+            font-size: 13px;
+            color: var(--text-title);
+        }
+
+        /* --- AUDIT TRAIL LOGS TIMELINE --- */
+        .timeline-box {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            padding-left: 16px;
+        }
+
+        .timeline-box::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .log-node {
+            position: relative;
+        }
+
+        .log-dot {
+            position: absolute;
+            left: -16px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            border: 2px solid var(--bg-card);
+            box-shadow: 0 0 0 2px #e2e8f0;
+        }
+
+        .log-node:first-child .log-dot {
+            background: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .log-content {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .log-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .log-status-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-title);
+        }
+
+        .log-msg {
+            font-size: 12.5px;
+            color: var(--text-body);
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        /* --- RESPONSIVE FIXES --- */
+        @media (max-width: 992px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar-list { width: 100%; height: 250px; }
+            .details-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <h1><span>🛠️</span> Hub Pemantauan Laporan Sarpras Kampas</h1>
+        <span class="badge bg-primary">Sistem Real-Time</span>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <div class="sidebar-list" id="report-list-container">
+            <div class="list-search-area">
+                <h2>Daftar Masuk Laporan</h2>
+            </div>
+            </div>
+
+        <div class="main-monitor-area">
+            
+            <div class="stepper-card">
+                <div style="font-size: 12px; font-weight:700; text-transform:uppercase; color: var(--text-muted); margin-bottom: 15px;">
+                    Progress Penanganan Real-time
+                </div>
+                <div class="stepper-wrapper">
+                    <div class="stepper-line-bg"></div>
+                    <div class="stepper-line-fill" id="stepper-progress-bar"></div>
+                    
+                    <div class="step-node" id="step-1">
+                        <div class="node-circle">1</div>
+                        <div class="node-label">Menunggu</div>
+                    </div>
+                    <div class="step-node" id="step-2">
+                        <div class="node-circle">2</div>
+                        <div class="node-label">Diproses</div>
+                    </div>
+                    <div class="step-node" id="step-3">
+                        <div class="node-circle">3</div>
+                        <div class="node-label">Pengerjaan</div>
+                    </div>
+                    <div class="step-node" id="step-4">
+                        <div class="node-circle">4</div>
+                        <div class="node-label">Selesai</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                
+                <div class="panel-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span id="txt-ticket-id" style="font-family:monospace; font-weight:700; color:var(--primary);"></span>
+                        <span id="badge-urgency" class="badge"></span>
+                    </div>
+                    <h2 id="txt-title" style="font-size:20px; font-weight:800; color:var(--text-title); margin-bottom:6px;"></h2>
+                    <span id="badge-category" class="badge bg-primary"></span>
+
+                    <div class="info-matrix">
+                        <div class="matrix-item">
+                            <span>Pelapor (Mahasiswa)</span>
+                            <strong id="txt-reporter"></strong>
+                        </div>
+                        <div class="matrix-item">
+                            <span>Tanggal Pengajuan</span>
+                            <strong id="txt-date"></strong>
+                        </div>
+                        <div class="matrix-item">
+                            <span>Verifikator (Admin)</span>
+                            <strong id="txt-admin"></strong>
+                        </div>
+                        <div class="matrix-item">
+                            <span>Teknisi Penanggung Jawab</span>
+                            <strong id="txt-technician"></strong>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 18px;">
+                        <h4 style="font-size:14px; margin-bottom:4px; color:var(--text-title);">Kronologi Kerusakan:</h4>
+                        <p id="txt-desc" style="font-size:14px; line-height:1.6; color:var(--text-body);"></p>
+                    </div>
+                </div>
+
+                <div class="panel-box">
+                    <div class="panel-title-text">Riwayat Log Catatan Status</div>
+                    <div class="timeline-box" id="timeline-log-container">
+                        </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Mock Data Array berdasarkan entitas di proyek Anda
+        const reportsData = [
+            {
+                id: "ASPR-24102",
+                title: "AC Ruang Aula Gedung B Bocor & Mati Total",
+                category: "Fasilitas Kelas / Ruangan",
+                urgency: "Berat",
+                reporter: "Muhammad Syah Fathir",
+                date: "12 Juni 2026, 09:15 WITA",
+                admin: "Admin Sarpras (ID: ADM-09)",
+                technician: "Imam Dzakwan (ID: TKN-04)",
+                desc: "AC di sisi kanan panggung aula mengeluarkan air deras sejak pagi hari sewaktu kuliah umum berlangsung. Saat ini AC mati total dan memicu hawa panas di seluruh ruangan gedung B.",
+                currentStep: 3, // Tahap 3: Dalam Pengerjaan
+                logs: [
+                    { time: "12 Juni, 14:00 WITA", status: "Dalam Pengerjaan", note: "Sparepart kompresor sedang diganti oleh teknisi di lokasi, estimasi selesai 2 jam." },
+                    { time: "12 Juni, 11:30 WITA", status: "Diproses", note: "Laporan valid. Admin menyerahkan tugas perbaikan ke Teknisi AC Kampus." },
+                    { time: "12 Juni, 09:15 WITA", status: "Menunggu", note: "Laporan diajukan oleh Mahasiswa dan masuk antrean server." }
+                ]
+            },
+            {
+                id: "ASPR-24105",
+                title: "Lampu Pencahayaan Lab Komputer 3 Redup & Berkedip",
+                category: "Fasilitas Lab",
+                urgency: "Sedang",
+                reporter: "Muhammad Arkan Naim",
+                date: "12 Juni 2026, 10:00 WITA",
+                admin: "Belum Diverifikasi",
+                technician: "Belum Ditugaskan",
+                desc: "3 Titik lampu neon di deretan meja komputer sisi barat redup total dan berkedip konstan, menyebabkan mata mahasiswa cepat lelah saat praktikum koding.",
+                currentStep: 1, // Tahap 1: Menunggu
+                logs: [
+                    { time: "12 Juni, 10:00 WITA", status: "Menunggu", note: "Aspirasi berhasil terkirim. Menunggu antrean verifikasi berkas oleh admin sarpras." }
+                ]
+            },
+            {
+                id: "ASPR-24099",
+                title: "Engsel Pintu Kelas Ruang 401 Copot",
+                category: "Prasarana Gedung",
+                urgency: "Ringan",
+                reporter: "Muhammad Akmal Ahsan",
+                date: "11 Juni 2026, 08:00 WITA",
+                admin: "Admin Sarpras (ID: ADM-01)",
+                technician: "Andi Saputra (ID: TKN-02)",
+                desc: "Pintu kelas tidak bisa ditutup rapat karena baut engsel bagian atas lepas sepenuhnya. Membahayakan jika terkena hempasan angin kencang.",
+                currentStep: 4, // Tahap 4: Selesai
+                logs: [
+                    { time: "11 Juni, 15:30 WITA", status: "Selesai", note: "Baut engsel baru telah dipasang dan disemen ulang. Pintu sudah berfungsi normal." },
+                    { time: "11 Juni, 11:00 WITA", status: "Dalam Pengerjaan", note: "Teknisi sedang melakukan pembongkaran engsel lama di Ruang 401." },
+                    { time: "11 Juni, 09:00 WITA", status: "Diproses", note: "Disposisi dikeluarkan ke teknisi kayu dan perkakas." },
+                    { time: "11 Juni, 08:00 WITA", status: "Menunggu", note: "Aspirasi diajukan ke dalam sistem platform." }
+                ]
+            }
+        ];
+
+        const listContainer = document.getElementById('report-list-container');
+
+        // Fungsi Render List Samping (Sidebar)
+        function initReportList() {
+            reportsData.forEach((report, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `report-item ${index === 0 ? 'active' : ''}`;
+                itemDiv.setAttribute('data-id', report.id);
+                
+                // Set badge warna berdasarkan urgensi
+                let urgencyBadgeClass = 'bg-warning';
+                if(report.urgency === 'Berat') urgencyBadgeClass = 'bg-danger';
+                if(report.urgency === 'Ringan') urgencyBadgeClass = 'bg-success';
+
+                itemDiv.innerHTML = `
+                    <div class="item-meta">
+                        <span>${report.id}</span>
+                        <span class="badge ${urgencyBadgeClass}">${report.urgency}</span>
+                    </div>
+                    <div class="item-title">${report.title}</div>
+                    <div style="font-size:11px; color: var(--text-muted);">${report.date}</div>
+                `;
+
+                // Event listener klik untuk memicu perubahan data sisi kanan
+                itemDiv.addEventListener('click', () => {
+                    document.querySelectorAll('.report-item').forEach(el => el.classList.remove('active'));
+                    itemDiv.classList.add('active');
+                    updateActiveDetails(report);
+                });
+
+                listContainer.appendChild(itemDiv);
+            });
+
+            // Jalankan render awal pertama kali untuk item pertama indeks 0
+            updateActiveDetails(reportsData[0]);
+        }
+
+        // Fungsi Dinamis Mengubah Konten Sisi Kanan (Monitor View)
+        function updateActiveDetails(report) {
+            // 1. Sinkronisasi Teks & Data Matriks
+            document.getElementById('txt-ticket-id').innerText = `TICKET // ${report.id}`;
+            document.getElementById('txt-title').innerText = report.title;
+            document.getElementById('badge-category').innerText = `Kategori: ${report.category}`;
+            document.getElementById('txt-reporter').innerText = report.reporter;
+            document.getElementById('txt-date').innerText = report.date;
+            document.getElementById('txt-admin').innerText = report.admin;
+            document.getElementById('txt-technician').innerText = report.technician;
+            document.getElementById('txt-desc').innerText = report.desc;
+
+            const badgeUrgency = document.getElementById('badge-urgency');
+            badgeUrgency.innerText = `Skala: ${report.urgency}`;
+            badgeUrgency.className = "badge " + (report.urgency === 'Berat' ? 'bg-danger' : report.urgency === 'Sedang' ? 'bg-warning' : 'bg-success');
+
+            // 2. Logika Stepper Bar Atas
+            const step = report.currentStep; // Nilai integers 1 sampai 4
+            
+            // Atur lebar fill line bar progress secara matematis
+            const progressLine = document.getElementById('stepper-progress-bar');
+            if (step === 1) progressLine.style.width = "0%";
+            else if (step === 2) progressLine.style.width = "33.3%";
+            else if (step === 3) progressLine.style.width = "66.6%";
+            else if (step === 4) progressLine.style.width = "90%";
+
+            // Atur status warna kelas (node) satu per satu
+            for (let i = 1; i <= 4; i++) {
+                const nodeElement = document.getElementById(`step-${i}`);
+                nodeElement.className = "step-node"; // reset default
+                
+                if (i < step) {
+                    nodeElement.classList.add('completed');
+                    nodeElement.querySelector('.node-circle').innerHTML = "✓";
+                } else if (i === step) {
+                    nodeElement.classList.add('active');
+                    nodeElement.querySelector('.node-circle').innerHTML = i;
+                } else {
+                    nodeElement.querySelector('.node-circle').innerHTML = i;
+                }
+            }
+
+            // 3. Render Ulang Komponen Riwayat Log Status
+            const logContainer = document.getElementById('timeline-log-container');
+            logContainer.innerHTML = ""; // Bersihkan log lama
+
+            report.logs.forEach(log => {
+                const logItem = document.createElement('div');
+                logItem.className = "log-node";
+                logItem.innerHTML = `
+                    <div class="log-dot"></div>
+                    <div class="log-content">
+                        <span class="log-time">${log.time}</span>
+                        <div class="log-status-title">Status: ${log.status}</div>
+                        <p class="log-msg">"${log.note}"</p>
+                    </div>
+                `;
+                logContainer.appendChild(logItem);
+            });
+        }
+
+        // Jalankan inisialisasi aplikasi saat dokumen siap
+        window.addEventListener('DOMContentLoaded', initReportList);
+    </script>
+</body>
+</html>

@@ -7,12 +7,21 @@
 @endpush
 
 @section('sidebar-menu')
-  <a href="{{ route('mahasiswa.dashboard') }}"><button>Dashboard</button></a>
-  <a href="{{ route('laporan.create') }}"><button style="background:#0b4a6f;color:white;">Buat Laporan</button></a>
-  <a href="{{ route('laporan.status') }}"><button>Status Laporan</button></a>
-  <button>Riwayat Tersedia</button>
-  <button>Notifikasi</button>
-  <a href="{{ route('mahasiswa.ganti.password') }}"><button style="background:#fff3cd;border-color:#ffc107;">🔑 Ganti Password</button></a>
+  <a href="{{ route('mahasiswa.dashboard') }}">
+    <button>🏠 Dashboard</button>
+  </a>
+  <a href="{{ route('laporan.create') }}">
+    <button class="active-menu">📋 Buat Laporan</button>
+  </a>
+  <a href="{{ route('laporan.pantau') }}">
+    <button>🔍 Pantau Laporan</button>
+  </a>
+  <a href="{{ route('laporan.status') }}">
+    <button>📂 Riwayat Laporan</button>
+  </a>
+  <a href="{{ route('mahasiswa.ganti.password') }}">
+    <button style="background:rgba(255,243,205,.1);color:#FCD34D;">🔑 Ganti Password</button>
+  </a>
 @endsection
 
 @section('profile-name') {{ $mhs->Nama_mahasiswa ?? $user->username }} @endsection

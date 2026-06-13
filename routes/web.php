@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\TeknisiController;
 
 // SuperAdmin Controllers
 use App\Http\Controllers\SuperAdmin\DashboardController  as SADashboard;
@@ -52,6 +53,19 @@ Route::prefix('admin')->middleware(['auth', 'role:super_admin,admin,teknisi'])->
 });
 
 // ========================
+//  TEKNISI (role: teknisi)
+// ========================
+
+Route::prefix('teknisi')->middleware(['auth', 'role:teknisi'])->group(function () {
+    Route::get('/dashboard',               [TeknisiController::class, 'dashboard'])->name('teknisi.dashboard');
+    Route::get('/tugas',                   [TeknisiController::class, 'tugasSaya'])->name('teknisi.tugas');
+    Route::get('/tugas/{id}',              [TeknisiController::class, 'detailTugas'])->name('teknisi.detail');
+    Route::patch('/tugas/{id}/mulai',      [TeknisiController::class, 'mulaiPerbaikan'])->name('teknisi.mulai');
+    Route::get('/tugas/{id}/selesai',      [TeknisiController::class, 'formSelesai'])->name('teknisi.form-selesai');
+    Route::post('/tugas/{id}/selesai',     [TeknisiController::class, 'selesaikanTugas'])->name('teknisi.selesai.post');
+});
+
+// ========================
 //  MAHASISWA (role: mahasiswa, dosen)
 // ========================
 
@@ -60,6 +74,7 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa,dosen'])->group(
     Route::get('/biodata/{id}', [MahasiswaController::class, 'biodata'])->name('mahasiswa.biodata');
     Route::post('/biodata/{id}', [MahasiswaController::class, 'updateBiodata'])->name('mahasiswa.biodata.update');
     Route::get('/laporan/status', [LaporanController::class, 'status'])->name('laporan.status');
+    Route::get('/laporan/pantau', [LaporanController::class, 'pantau'])->name('laporan.pantau');
     Route::get('/laporan/buat', [LaporanController::class, 'create'])->name('laporan.create');
     Route::post('/laporan/buat', [LaporanController::class, 'store'])->name('laporan.store');
     Route::get('/ganti-password', [MahasiswaController::class, 'showGantiPassword'])->name('mahasiswa.ganti.password');

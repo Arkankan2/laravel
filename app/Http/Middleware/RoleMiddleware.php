@@ -26,7 +26,10 @@ class RoleMiddleware
 
         if (!in_array($userRole, $roles, true)) {
             // Redirect ke dashboard yang sesuai role user
-            if (in_array($userRole, ['super_admin', 'admin', 'teknisi'])) {
+            if ($userRole === 'teknisi') {
+                return redirect()->route('teknisi.dashboard');
+            }
+            if (in_array($userRole, ['super_admin', 'admin'])) {
                 return redirect()->route('admin.dashboard');
             }
             return redirect()->route('mahasiswa.dashboard');

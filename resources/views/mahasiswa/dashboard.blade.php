@@ -16,7 +16,7 @@
   <a href="{{ route('laporan.create') }}">
     <button>📋 Buat Laporan</button>
   </a>
-  <a href="{{ route('laporan.status') }}">
+  <a href="{{ route('laporan.pantau') }}">
     <button>🔍 Pantau Laporan</button>
   </a>
   <a href="{{ route('laporan.status') }}">
@@ -174,7 +174,7 @@
     <div class="section-header">
       <h3><span class="icon">📊</span> Progress Laporan Aktif</h3>
       @if($laporanAktif)
-        <a href="{{ route('laporan.status') }}">Lihat Detail →</a>
+        <a href="{{ route('laporan.pantau') }}">Lihat Detail →</a>
       @endif
     </div>
 
@@ -396,10 +396,10 @@
       </a>
 
       {{-- Pantau Laporan --}}
-      <a href="{{ route('laporan.status') }}" class="action-card ac-purple" id="btn-pantau-laporan">
+      <a href="{{ route('laporan.pantau') }}" class="action-card ac-purple" id="btn-pantau-laporan">
         <div class="action-icon">🔍</div>
         <div class="action-label">Pantau Laporan</div>
-        <div class="action-sub">Cek status laporan Anda</div>
+        <div class="action-sub">Monitor detail status laporan Anda</div>
       </a>
 
       {{-- Riwayat Laporan --}}
