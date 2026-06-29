@@ -17,6 +17,10 @@
 7.  masuk ke direktori dari Local Disk(C;)/XAMPP/htdocs/aqas setelah itu jalankan dengan mengetik php artisan serve di vscode atau terminal.
 8.  untuk mengakses webnya buka browser dan masukkan url yang muncul dari output php artisan serve (Biasanya localhost:8000)
 9.  sekian terimakasih
+
+## Catatan  Backup
+Jika file dari proyek ini tidak bisa dibuka/dijalankan dikarenakan masalah pada php artisan serve, maka dianjurkan untuk mengistall manual melalui link google drive yang telah disediakan <a href="https://drive.google.com/drive/folders/1JmW1b1rJAQUFt9Hl9xwIhiKGQGxYoT8n?usp=drive_link"> Klik disini untuk mengunduh </a>
+cara nya seperti langkah langkah diatas
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
